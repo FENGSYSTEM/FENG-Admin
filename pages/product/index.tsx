@@ -34,6 +34,9 @@ export default function Index({}: Props): ReactElement {
   const [productStocksStatic, setProductStocksStatic] = useState<any>();
   const [productColors, setProductColors] = useState<any[]>([]);
 
+  const [isCreateNew, setIsCreateNew] = useState<boolean>(true);
+  // isCreateNew === false => means update.
+
   useEffect(() => {
     dispatch(getListProduct());
   }, []);
@@ -65,6 +68,15 @@ export default function Index({}: Props): ReactElement {
     console.log(productColors);
     form.setFieldsValue({ color: productColors });
   }, [productColors]);
+
+  const handleCreateNew = () => {
+    setIsCreateNew(true);
+    setOpenCreateModal(true);
+    form.resetFields();
+    setSelectedCategory([]);
+    setSelectedSubCategory([]);
+    setProductColors([]);
+  };
 
   const columns = [
     {
@@ -120,7 +132,10 @@ export default function Index({}: Props): ReactElement {
           <div
             className="mr-2"
             onClick={async () => {
+              // handleUpdatePopup
+              setIsCreateNew(false);
               console.log(record.color);
+              setProductColors(record.color);
               // set Selected category
               setSelectBoxSubCategory(
                 await apiGetSubCategory(record.category.name)
@@ -151,24 +166,27 @@ export default function Index({}: Props): ReactElement {
   ];
 
   const onFinish = async (values: any) => {
-    const sendData = new FormData();
-    sendData.append("subCategoryId", values.subCategoryId);
-    sendData.append("name", values.name);
-    sendData.append("price", values.price);
-    sendData.append("arrival", values.arrival);
-    sendData.append("status", values.status);
-    sendData.append("productStocks", JSON.stringify(values.productStocks));
-    // sendData.append("files", targetImg, targetImg.name);
-    values.files.forEach((file: any) => {
-      sendData.append("files", file.originFileObj, file.name);
-    });
-    sendData.append("color", JSON.stringify(values.color));
-    sendData.append("description", values.description);
-    console.log(values);
-    await dispatch(createProduct(sendData));
-    setOpenCreateModal(false);
-    await dispatch(getListProduct());
-    // form.resetFields();
+    if (isCreateNew) {
+      const sendData = new FormData();
+      sendData.append("subCategoryId", values.subCategoryId);
+      sendData.append("name", values.name);
+      sendData.append("price", values.price);
+      sendData.append("arrival", values.arrival);
+      sendData.append("status", values.status);
+      sendData.append("productStocks", JSON.stringify(values.productStocks));
+      values.files.forEach((file: any) => {
+        sendData.append("files", file.originFileObj, file.name);
+      });
+      sendData.append("color", JSON.stringify(values.color));
+      sendData.append("description", values.description);
+      console.log(values);
+      await dispatch(createProduct(sendData));
+      setOpenCreateModal(false);
+      await dispatch(getListProduct());
+      form.resetFields();
+    } else {
+      console.log("update");
+    }
     //----
 
     // const data = {
@@ -196,16 +214,12 @@ export default function Index({}: Props): ReactElement {
 
   return (
     <div>
-      <Button
-        type="primary"
-        size="middle"
-        onClick={() => setOpenCreateModal(true)}
-      >
-        create new product
+      <Button type="primary" size="middle" onClick={() => handleCreateNew()}>
+        Create new product
       </Button>
 
       <Modal
-        title="Create a new product"
+        title={`${isCreateNew ? "Create new product" : "Update product info"}`}
         style={{ top: 20 }}
         visible={openCreateModal}
         onOk={() => form.submit()}
