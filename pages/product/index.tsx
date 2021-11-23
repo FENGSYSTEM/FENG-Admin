@@ -541,7 +541,7 @@ export default function Index({}: Props): ReactElement {
                 <Form.Item
                   name="description"
                   label="Description"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   {/* <Input placeholder="Description" /> */}
                 </Form.Item>
