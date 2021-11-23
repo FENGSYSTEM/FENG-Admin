@@ -17,6 +17,7 @@ import {
 } from "@ant-design/icons";
 import { SwatchesPicker } from "react-color";
 import { apiGetCategory, apiGetSubCategory } from "src/api/product";
+import { Editor } from "@tinymce/tinymce-react";
 
 interface Props {}
 
@@ -72,10 +73,16 @@ export default function Index({}: Props): ReactElement {
     form.setFieldsValue({ color: productColors });
   }, [productColors]);
 
+  const editorRef = useRef<any>(null);
+  const [descriptionEditor, setDescriptionEditor] = useState<any>();
+  const [descriptionEditorInitContent, setDescriptionEditorInitContent] =
+    useState<any>();
+
   const handleCreateNew = () => {
     setIsCreateNew(true);
     setOpenCreateModal(true);
     form.resetFields();
+    setDescriptionEditorInitContent("");
     setSelectedCategory([]);
     setSelectedSubCategory([]);
     setProductColors([]);
@@ -157,6 +164,7 @@ export default function Index({}: Props): ReactElement {
             className="mr-2"
             onClick={async () => {
               // handleUpdatePopup
+
               setIsCreateNew(false);
               console.log(record);
               setProductColors(record.color);
@@ -170,6 +178,7 @@ export default function Index({}: Props): ReactElement {
               setProductDataImgList(record.images);
               setCurrentProductId(record.id);
               // ---
+
               setOpenCreateModal(true);
               form.setFieldsValue({
                 productId: record.id,
@@ -182,6 +191,8 @@ export default function Index({}: Props): ReactElement {
                 color: record.color,
                 description: record.description,
               });
+              // descriptionEditor?.setContent(record.description);
+              setDescriptionEditorInitContent(record.description);
             }}
           >
             <EditOutlined className="cursor-pointer" />
@@ -204,7 +215,12 @@ export default function Index({}: Props): ReactElement {
         sendData.append("files", file.originFileObj, file.name);
       });
       sendData.append("color", JSON.stringify(values.color));
-      sendData.append("description", values.description);
+      if (descriptionEditor) {
+        await form.setFieldsValue({
+          description: descriptionEditor.getContent(),
+        });
+      }
+      sendData.append("description", descriptionEditor.getContent());
       console.log(values);
       await dispatch(createProduct(sendData));
       setOpenCreateModal(false);
@@ -221,7 +237,12 @@ export default function Index({}: Props): ReactElement {
       sendData.append("status", values.status);
       sendData.append("productStocks", JSON.stringify(values.productStocks));
       sendData.append("color", JSON.stringify(values.color));
-      sendData.append("description", values.description);
+      if (descriptionEditor) {
+        await form.setFieldsValue({
+          description: descriptionEditor.getContent(),
+        });
+      }
+      sendData.append("description", descriptionEditor.getContent());
       sendData.append("images", JSON.stringify(productDataImgList));
       if (values.files) {
         values.files.forEach((file: any) => {
@@ -522,8 +543,29 @@ export default function Index({}: Props): ReactElement {
                   label="Description"
                   rules={[{ required: true }]}
                 >
-                  <Input placeholder="Description" />
+                  {/* <Input placeholder="Description" /> */}
                 </Form.Item>
+                <Editor
+                  apiKey="cmba0fnvigwepex6qxozkc4ngm629qui01c8txusfvjppwbr"
+                  onInit={(evt, editor) => setDescriptionEditor(editor)}
+                  initialValue={descriptionEditorInitContent}
+                  init={{
+                    height: 500,
+                    menubar: true,
+                    plugins: [
+                      "advlist autolink lists link image charmap print preview anchor",
+                      "searchreplace visualblocks code fullscreen",
+                      "insertdatetime media table paste code help wordcount",
+                    ],
+                    toolbar:
+                      "undo redo | formatselect | " +
+                      "bold italic backcolor | alignleft aligncenter " +
+                      "alignright alignjustify | bullist numlist outdent indent | " +
+                      "removeformat | help",
+                    content_style:
+                      "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                  }}
+                />
               </div>
             </div>
           </div>
