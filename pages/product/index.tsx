@@ -14,6 +14,7 @@ import {
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
+import { SwatchesPicker } from "react-color";
 
 interface Props {}
 
@@ -24,14 +25,28 @@ export default function Index({}: Props): ReactElement {
     (state) => state.product.createProductLoading
   );
 
+  const [openPickColor, setOpenPickColor] = useState<boolean>(false);
+
   const [openCreateModal, setOpenCreateModal] = useState<boolean>();
   const [form] = Form.useForm();
   const { Option } = Select;
   const [productStocksStatic, setProductStocksStatic] = useState<any>();
+  const [productColors, setProductColors] = useState<any[]>([]);
 
   useEffect(() => {
     dispatch(getListProduct());
   }, []);
+
+  const handleColorPicker = (color: any) => {
+    console.log(color);
+    setProductColors((prev) => [...prev, color.hex]);
+    setOpenPickColor(false);
+  };
+
+  useEffect(() => {
+    console.log(productColors);
+    form.setFieldsValue({ color: productColors });
+  }, [productColors]);
 
   const columns = [
     {
@@ -129,10 +144,12 @@ export default function Index({}: Props): ReactElement {
     });
     sendData.append("color", values.color);
     sendData.append("description", values.description);
-    await dispatch(createProduct(sendData));
-    setOpenCreateModal(false);
-    await dispatch(getListProduct());
-    form.resetFields();
+    console.log(values);
+    // await dispatch(createProduct(sendData));
+    // setOpenCreateModal(false);
+    // await dispatch(getListProduct());
+    // form.resetFields();
+    //----
 
     // const data = {
     //   subCategoryId: values.subCategoryId,
@@ -316,7 +333,43 @@ export default function Index({}: Props): ReactElement {
                   label="Color"
                   rules={[{ required: true }]}
                 >
-                  <Input placeholder="Color" />
+                  <Button
+                    type="primary"
+                    onClick={() => setOpenPickColor(!openPickColor)}
+                  >
+                    Pick color
+                  </Button>
+                  {openPickColor && (
+                    <SwatchesPicker onChange={handleColorPicker} />
+                  )}
+                  {productColors?.map((color: string, index: number) => (
+                    <div className="my-2 w-100 d-flex justify-content-between align-content-center">
+                      <div>{color}</div>
+                      <div className="d-flex align-items-center">
+                        <div
+                          className="mx-2"
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            background: color,
+                          }}
+                        />
+                        <DeleteOutlined
+                          className="cursor-pointer"
+                          onClick={() => {
+                            let cloneColors = [...productColors];
+                            let deletedIndex = cloneColors.findIndex(
+                              (e: any) => e === color
+                            );
+                            cloneColors.splice(deletedIndex, 1);
+                            console.log(cloneColors);
+                            setProductColors(cloneColors);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {/* <Input placeholder="Color" /> */}
                 </Form.Item>
               </div>
               <div className="col-12">
