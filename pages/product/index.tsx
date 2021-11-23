@@ -37,6 +37,8 @@ export default function Index({}: Props): ReactElement {
   const [isCreateNew, setIsCreateNew] = useState<boolean>(true);
   // isCreateNew === false => means update.
 
+  const [productDataImgList, setProductDataImgList] = useState<any[]>();
+
   useEffect(() => {
     dispatch(getListProduct());
   }, []);
@@ -76,6 +78,7 @@ export default function Index({}: Props): ReactElement {
     setSelectedCategory([]);
     setSelectedSubCategory([]);
     setProductColors([]);
+    setProductDataImgList([]);
   };
 
   const columns = [
@@ -86,9 +89,29 @@ export default function Index({}: Props): ReactElement {
       render: (text: string) => <a>{text}</a>,
     },
     {
+      title: "image",
+      dataIndex: "images",
+      key: "images",
+      render: (imgsUrl: any) => (
+        <img src={imgsUrl[0]} style={{ height: "100px" }} />
+      ),
+    },
+    {
       title: "name",
       dataIndex: "name",
       key: "name",
+    },
+    {
+      title: "category",
+      dataIndex: "category",
+      key: "category",
+      render: (text: any) => <a>{text.name}</a>,
+    },
+    {
+      title: "subCategory",
+      dataIndex: "subCategory",
+      key: "subCategory",
+      render: (text: any) => <a>{text.name}</a>,
     },
     {
       title: "price",
@@ -134,7 +157,7 @@ export default function Index({}: Props): ReactElement {
             onClick={async () => {
               // handleUpdatePopup
               setIsCreateNew(false);
-              console.log(record.color);
+              console.log(record);
               setProductColors(record.color);
               // set Selected category
               setSelectBoxSubCategory(
@@ -142,7 +165,7 @@ export default function Index({}: Props): ReactElement {
               );
               setSelectedCategory(record.category.name);
               setSelectedSubCategory(record.subCategory.id);
-
+              setProductDataImgList(record.images);
               // ---
               setOpenCreateModal(true);
               form.setFieldsValue({
@@ -152,7 +175,7 @@ export default function Index({}: Props): ReactElement {
                 arrival: record.arrival,
                 status: record.status,
                 productStocks: record.productStocks,
-                files: record.files,
+                // files: record.files,
                 color: JSON.stringify(record.color),
                 description: record.description,
               });
@@ -375,6 +398,32 @@ export default function Index({}: Props): ReactElement {
                     setTargetImg(e.target.files[0]);
                   }}
                 /> */}
+                {productDataImgList &&
+                  productDataImgList.map((imgUrl: string, index: number) => (
+                    <div className="w-100">
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center justify-content-center">
+                          <img src={imgUrl} style={{ height: "80px" }} />
+                          <a href={imgUrl} className="mx-3 break-word" target="_blank" >
+                            {imgUrl}
+                          </a>
+                        </div>
+                        <DeleteOutlined
+                          className="cursor-pointer"
+                          onClick={() => {
+                            let cloneImages = [...productDataImgList];
+                            let deletedIndex = cloneImages.findIndex(
+                              (e: any) => e === imgUrl
+                            );
+                            cloneImages.splice(deletedIndex, 1);
+                            console.log(cloneImages);
+                            setProductDataImgList(cloneImages);
+                          }}
+                        />
+                      </div>
+                      <hr />
+                    </div>
+                  ))}
                 <Form.Item label="Images">
                   <Form.Item
                     name="files"
