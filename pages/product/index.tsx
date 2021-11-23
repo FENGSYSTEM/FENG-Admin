@@ -3,6 +3,7 @@ import {
   deleteProduct,
   getListProduct,
   getListProductBySub,
+  updateProduct,
 } from "@redux/slices/admin/productSlide";
 import { Table, Button, Modal, Select, Form, Input, Space, Upload } from "antd";
 import React, { ReactElement, useEffect, useRef, useState } from "react";
@@ -36,7 +37,7 @@ export default function Index({}: Props): ReactElement {
 
   const [isCreateNew, setIsCreateNew] = useState<boolean>(true);
   // isCreateNew === false => means update.
-
+  const [currentProductId, setCurrentProductId] = useState<any>();
   const [productDataImgList, setProductDataImgList] = useState<any[]>();
 
   useEffect(() => {
@@ -165,18 +166,20 @@ export default function Index({}: Props): ReactElement {
               );
               setSelectedCategory(record.category.name);
               setSelectedSubCategory(record.subCategory.id);
+              form.setFieldsValue({ subCategoryId: record.subCategory.id });
               setProductDataImgList(record.images);
+              setCurrentProductId(record.id);
               // ---
               setOpenCreateModal(true);
               form.setFieldsValue({
-                subCategoryId: record.id,
+                productId: record.id,
                 name: record.name,
                 price: record.price,
                 arrival: record.arrival,
                 status: record.status,
                 productStocks: record.productStocks,
                 // files: record.files,
-                color: JSON.stringify(record.color),
+                color: record.color,
                 description: record.description,
               });
             }}
@@ -209,6 +212,26 @@ export default function Index({}: Props): ReactElement {
       form.resetFields();
     } else {
       console.log("update");
+      const sendData = new FormData();
+      console.log(values);
+      sendData.append("subCategoryId", values.subCategoryId);
+      sendData.append("name", values.name);
+      sendData.append("price", values.price);
+      sendData.append("arrival", values.arrival);
+      sendData.append("status", values.status);
+      sendData.append("productStocks", JSON.stringify(values.productStocks));
+      sendData.append("color", JSON.stringify(values.color));
+      sendData.append("description", values.description);
+      sendData.append("images", JSON.stringify(productDataImgList));
+      if (values.files) {
+        values.files.forEach((file: any) => {
+          sendData.append("files", file.originFileObj, file.name);
+        });
+      }
+      await dispatch(updateProduct({ data: sendData, id: currentProductId }));
+      setOpenCreateModal(false);
+      await dispatch(getListProduct());
+      form.resetFields();
     }
     //----
 
@@ -404,7 +427,11 @@ export default function Index({}: Props): ReactElement {
                       <div className="d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center justify-content-center">
                           <img src={imgUrl} style={{ height: "80px" }} />
-                          <a href={imgUrl} className="mx-3 break-word" target="_blank" >
+                          <a
+                            href={imgUrl}
+                            className="mx-3 break-word"
+                            target="_blank"
+                          >
                             {imgUrl}
                           </a>
                         </div>
@@ -430,7 +457,9 @@ export default function Index({}: Props): ReactElement {
                     valuePropName="fileList"
                     getValueFromEvent={normFile}
                     noStyle
-                    rules={[{ required: true }]}
+                    rules={
+                      isCreateNew ? [{ required: true }] : [{ required: false }]
+                    }
                   >
                     <Upload
                       listType="picture"

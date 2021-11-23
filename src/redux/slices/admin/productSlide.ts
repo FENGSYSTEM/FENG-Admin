@@ -32,6 +32,15 @@ export const createProduct = createAsyncThunk(
   }
 );
 
+export const updateProduct = createAsyncThunk(
+  "updateProduct",
+  async ({ data, id }: { data: any; id: any }) => {
+    console.log(data);
+    const res = await axiosService.put(`${API_ENDPOINT}/products/${id}`, data);
+    console.log(res);
+  }
+);
+
 export const deleteProduct = createAsyncThunk(
   "deleteProduct",
   async (productId: any) => {
@@ -48,6 +57,7 @@ const initialState = {
   listProductLoading: false,
   createProductLoading: false,
   deleleProductLoading: false,
+  updateProductLoading: false,
 };
 
 const productSlide = createSlice({
@@ -94,6 +104,20 @@ const productSlide = createSlice({
     builder.addCase(createProduct.rejected, (state) => {
       message.error("failed to create new product");
       state.createProductLoading = false;
+    });
+    /**
+     * @updateProduct
+     */
+    builder.addCase(updateProduct.pending, (state) => {
+      state.updateProductLoading = true;
+    });
+    builder.addCase(updateProduct.fulfilled, (state, { payload }) => {
+      message.success("update product successfully !");
+      state.updateProductLoading = false;
+    });
+    builder.addCase(updateProduct.rejected, (state) => {
+      message.error("failed to create new product");
+      state.updateProductLoading = false;
     });
   },
 });
