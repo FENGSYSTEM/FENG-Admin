@@ -5,7 +5,7 @@ import {
   getListProductBySub,
 } from "@redux/slices/admin/productSlide";
 import { Table, Button, Modal, Select, Form, Input, Space, Upload } from "antd";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   UploadOutlined,
@@ -15,6 +15,7 @@ import {
   EditOutlined,
 } from "@ant-design/icons";
 import { SwatchesPicker } from "react-color";
+import { apiGetCategory, apiGetSubCategory } from "src/api/product";
 
 interface Props {}
 
@@ -35,6 +36,23 @@ export default function Index({}: Props): ReactElement {
 
   useEffect(() => {
     dispatch(getListProduct());
+  }, []);
+
+  /**
+   * @selectBox category & subCategory
+   */
+  const [selectBoxCategory, setSelectBoxCategory] = useState<any>();
+  const [selectBoxSubCategory, setSelectBoxSubCategory] = useState<any>();
+  const [selectedCategory, setSelectedCategory] = useState<any>();
+  const [selectedSubCategory, setSelectedSubCategory] = useState<any>();
+
+  useEffect(() => {
+    async function initCategory() {
+      const data = await apiGetCategory();
+      setSelectBoxCategory(data);
+      console.log(data);
+    }
+    initCategory();
   }, []);
 
   const handleColorPicker = (color: any) => {
@@ -102,14 +120,16 @@ export default function Index({}: Props): ReactElement {
           <div
             className="mr-2"
             onClick={async () => {
+              console.log(record.color);
+              // set Selected category
+              setSelectBoxSubCategory(
+                await apiGetSubCategory(record.category.name)
+              );
+              setSelectedCategory(record.category.name);
+              setSelectedSubCategory(record.subCategory.id);
+
+              // ---
               setOpenCreateModal(true);
-              //   let productStocks = form.getFieldValue("productStocks");
-              //   record.productStocks.map((obj: any, index: number) => {
-              //     console.log({ productStocks, obj, index });
-              //     form.getFieldValue("productStocks").add();
-              //     // productStocks[index].size = obj.size;
-              //     // productStocks[index].amount = obj.amount;
-              //   });
               form.setFieldsValue({
                 subCategoryId: record.id,
                 name: record.name,
@@ -123,7 +143,7 @@ export default function Index({}: Props): ReactElement {
               });
             }}
           >
-            <EditOutlined />
+            <EditOutlined className="cursor-pointer" />
           </div>
         </div>
       ),
@@ -142,12 +162,12 @@ export default function Index({}: Props): ReactElement {
     values.files.forEach((file: any) => {
       sendData.append("files", file.originFileObj, file.name);
     });
-    sendData.append("color", values.color);
+    sendData.append("color", JSON.stringify(values.color));
     sendData.append("description", values.description);
     console.log(values);
-    // await dispatch(createProduct(sendData));
-    // setOpenCreateModal(false);
-    // await dispatch(getListProduct());
+    await dispatch(createProduct(sendData));
+    setOpenCreateModal(false);
+    await dispatch(getListProduct());
     // form.resetFields();
     //----
 
@@ -202,10 +222,42 @@ export default function Index({}: Props): ReactElement {
                   label="Category"
                   rules={[{ required: true }]}
                 >
-                  <Select placeholder="select category" allowClear>
-                    <Option value="20">20</Option>
-                    <Option value="21">21</Option>
-                  </Select>
+                  <div className="d-flex justify-content-between">
+                    <Select
+                      className="mr-2"
+                      placeholder="select category"
+                      value={selectedCategory}
+                      onChange={async (e) => {
+                        setSelectedSubCategory([]);
+                        setSelectBoxSubCategory(
+                          await apiGetSubCategory(e as string)
+                        );
+                        setSelectedCategory(e);
+                      }}
+                    >
+                      {selectBoxCategory?.map((obj: any, index: number) => (
+                        <Option value={obj.name} key={`category-${index}`}>
+                          {obj.name}
+                        </Option>
+                      ))}
+                    </Select>
+                    <Select
+                      placeholder="select sub category"
+                      value={selectedSubCategory}
+                      allowClear
+                      onChange={(e) => {
+                        console.log(e);
+                        form.setFieldsValue({ subCategoryId: e });
+                        setSelectedSubCategory(e);
+                      }}
+                    >
+                      {selectBoxSubCategory?.map((obj: any, index: number) => (
+                        <Option value={obj.id} key={`category-${index}`}>
+                          {obj.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </div>
                 </Form.Item>
               </div>
               <div className="col-12">
