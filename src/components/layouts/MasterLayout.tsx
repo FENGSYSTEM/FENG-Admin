@@ -22,16 +22,61 @@ export default function MasterLayout({ children }: Props): ReactElement {
               <Collapse bordered={false} defaultActiveKey={["1"]} ghost>
                 <Panel header="Product" key="1">
                   <Link href="/product">
-                    <div className="menu-item">Product List</div>
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/product" && "active"
+                      }`}
+                    >
+                      Manage Product
+                    </div>
                   </Link>
                 </Panel>
                 <Panel header="Order" key="2">
                   <Link href="/order">
-                    <div className="menu-item">Order List</div>
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/order" && "active"
+                      }`}
+                    >
+                      Order List
+                    </div>
+                  </Link>
+                  <Link href="/order/pending">
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/order/pending" && "active"
+                      }`}
+                    >
+                      Pending Order List
+                    </div>
+                  </Link>
+                  <Link href="/order/processing">
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/order/processing" && "active"
+                      }`}
+                    >
+                      Processing Order List
+                    </div>
+                  </Link>
+                  <Link href="/order/successful">
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/order/successful" && "active"
+                      }`}
+                    >
+                      Successful Order List
+                    </div>
                   </Link>
                 </Panel>
                 <Panel header="Category" key="2">
-                  <div className="menu-item">Category</div>
+                  <div
+                    className={`menu-item ${
+                      router.pathname === "/category" && "active"
+                    }`}
+                  >
+                    Category
+                  </div>
                 </Panel>
                 <Panel header="Collection" key="3">
                   123

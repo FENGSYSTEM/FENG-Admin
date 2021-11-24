@@ -41,8 +41,18 @@ export default function Index({}: Props): ReactElement {
   const [currentProductId, setCurrentProductId] = useState<any>();
   const [productDataImgList, setProductDataImgList] = useState<any[]>();
 
+  const [categoryFilter, setCategoryFilter] = useState<any>("");
+  const [subCategoryFilter, setSubcategoryFilter] = useState<any>("");
+  const [categoryFilterData, setCategoryFilterData] = useState<any>();
+  const [subCategoryFilterData, setSubCategoryFilterData] = useState<any>();
+
   useEffect(() => {
-    dispatch(getListProduct());
+    dispatch(
+      getListProduct({
+        category: categoryFilter,
+        subCategoryUrl: subCategoryFilter,
+      })
+    );
   }, []);
 
   /**
@@ -57,6 +67,7 @@ export default function Index({}: Props): ReactElement {
     async function initCategory() {
       const data = await apiGetCategory();
       setSelectBoxCategory(data);
+      setCategoryFilterData(data);
       console.log(data);
     }
     initCategory();
@@ -91,13 +102,13 @@ export default function Index({}: Props): ReactElement {
 
   const columns = [
     {
-      title: "id",
+      title: "ID",
       dataIndex: "id",
       key: "id",
       render: (text: string) => <a>{text}</a>,
     },
     {
-      title: "image",
+      title: "Image",
       dataIndex: "images",
       key: "images",
       render: (imgsUrl: any) => (
@@ -105,48 +116,59 @@ export default function Index({}: Props): ReactElement {
       ),
     },
     {
-      title: "name",
+      title: "Name",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "category",
+      title: "Category",
       dataIndex: "category",
       key: "category",
       render: (text: any) => <a>{text.name}</a>,
     },
     {
-      title: "subCategory",
+      title: "Sub category",
       dataIndex: "subCategory",
       key: "subCategory",
       render: (text: any) => <a>{text.name}</a>,
     },
     {
-      title: "price",
+      title: "Price",
       dataIndex: "price",
       key: "price",
     },
     {
-      title: "arrival",
+      title: "Arrival",
       dataIndex: "arrival",
       key: "arrival",
     },
     {
-      title: "status",
+      title: "Status",
       dataIndex: "status",
       key: "status",
     },
     {
-      title: "color",
+      title: "Color",
       dataIndex: "color",
       key: "color",
       render: (colors: any) =>
         colors?.map((obj: any, index: number) => (
-          <div className="mr-1">{obj}</div>
+          <div className="d-flex align-items-center">
+            <div
+              className="mx-2"
+              style={{
+                width: "20px",
+                height: "20px",
+                background: obj,
+                border: "2px solid #000",
+              }}
+            />
+            <div>{obj}</div>
+          </div>
         )),
     },
     {
-      title: "action",
+      title: "Action",
       dataIndex: "action",
       key: "action",
       render: (text: string, record: any) => (
@@ -155,7 +177,12 @@ export default function Index({}: Props): ReactElement {
             className="mr-2"
             onClick={async () => {
               await dispatch(deleteProduct(record.id));
-              await dispatch(getListProduct());
+              await dispatch(
+                getListProduct({
+                  category: categoryFilter,
+                  subCategoryUrl: subCategoryFilter,
+                })
+              );
             }}
           >
             <DeleteOutlined />
@@ -172,16 +199,19 @@ export default function Index({}: Props): ReactElement {
               setSelectBoxSubCategory(
                 await apiGetSubCategory(record.category.name)
               );
+
               setSelectedCategory(record.category.name);
-              setSelectedSubCategory(record.subCategory.id);
-              form.setFieldsValue({ subCategoryId: record.subCategory.id });
+              setSelectedSubCategory(record.subCategory.Url);
+
+              form.setFieldsValue({ subCategoryId: record.subCategory.Url });
               setProductDataImgList(record.images);
               setCurrentProductId(record.id);
               // ---
 
               setOpenCreateModal(true);
               form.setFieldsValue({
-                productId: record.id,
+                category: record.category.name,
+                subCategoryUrl: record.subCategory.url,
                 name: record.name,
                 price: record.price,
                 arrival: record.arrival,
@@ -205,7 +235,8 @@ export default function Index({}: Props): ReactElement {
   const onFinish = async (values: any) => {
     if (isCreateNew) {
       const sendData = new FormData();
-      sendData.append("subCategoryId", values.subCategoryId);
+      sendData.append("category", values.category);
+      sendData.append("subCategoryUrl", values.subCategoryUrl);
       sendData.append("name", values.name);
       sendData.append("price", values.price);
       sendData.append("arrival", values.arrival);
@@ -224,13 +255,19 @@ export default function Index({}: Props): ReactElement {
       console.log(values);
       await dispatch(createProduct(sendData));
       setOpenCreateModal(false);
-      await dispatch(getListProduct());
+      await dispatch(
+        getListProduct({
+          category: categoryFilter,
+          subCategoryUrl: subCategoryFilter,
+        })
+      );
       form.resetFields();
     } else {
       console.log("update");
       const sendData = new FormData();
       console.log(values);
-      sendData.append("subCategoryId", values.subCategoryId);
+      sendData.append("category", values.category);
+      sendData.append("subCategoryUrl", values.subCategoryUrl);
       sendData.append("name", values.name);
       sendData.append("price", values.price);
       sendData.append("arrival", values.arrival);
@@ -251,7 +288,12 @@ export default function Index({}: Props): ReactElement {
       }
       await dispatch(updateProduct({ data: sendData, id: currentProductId }));
       setOpenCreateModal(false);
-      await dispatch(getListProduct());
+      await dispatch(
+        getListProduct({
+          category: categoryFilter,
+          subCategoryUrl: subCategoryFilter,
+        })
+      );
       form.resetFields();
     }
     //----
@@ -279,11 +321,68 @@ export default function Index({}: Props): ReactElement {
     return e && e.fileList;
   };
 
+  useEffect(() => {
+    console.log(categoryFilter, subCategoryFilter);
+    dispatch(
+      getListProduct({
+        category: categoryFilter,
+        subCategoryUrl: subCategoryFilter,
+      })
+    );
+  }, [categoryFilter, subCategoryFilter]);
+
   return (
     <div>
-      <Button type="primary" size="middle" onClick={() => handleCreateNew()}>
-        Create new product
-      </Button>
+      <div className="mb-3 w-100 d-flex align-items-center">
+        <Button
+          size="middle"
+          className="mr-2"
+          onClick={() => handleCreateNew()}
+        >
+          Create new product
+        </Button>
+        <Select
+          className="mr-2"
+          placeholder="select category"
+          value={categoryFilter}
+          style={{ width: 150 }}
+          onChange={async (e) => {
+            setSubcategoryFilter([]);
+            setSubCategoryFilterData(await apiGetSubCategory(e as string));
+            setCategoryFilter(e);
+          }}
+        >
+          {categoryFilterData?.map((obj: any, index: number) => (
+            <Option value={obj.name} key={`category-${index}`}>
+              {obj.name}
+            </Option>
+          ))}
+        </Select>
+        <Select
+          placeholder="select sub category"
+          value={subCategoryFilter}
+          style={{ width: 150 }}
+          className="mr-2"
+          onChange={(e) => {
+            setSubcategoryFilter(e);
+          }}
+        >
+          {subCategoryFilterData?.map((obj: any, index: number) => (
+            <Option value={obj.url} key={`category-${index}`}>
+              {obj.name}
+            </Option>
+          ))}
+        </Select>
+        <Button
+          size="middle"
+          onClick={() => {
+            setCategoryFilter("");
+            setSubcategoryFilter("");
+          }}
+        >
+          Remove filter
+        </Button>
+      </div>
 
       <Modal
         title={`${isCreateNew ? "Create new product" : "Update product info"}`}
@@ -298,12 +397,12 @@ export default function Index({}: Props): ReactElement {
           <div className="col-12">
             <div className="row">
               <div className="col-12">
-                <Form.Item
-                  name="subCategoryId"
-                  label="Category"
-                  rules={[{ required: true }]}
-                >
-                  <div className="d-flex justify-content-between">
+                <div className="d-flex justify-content-between">
+                  <Form.Item
+                    name="category"
+                    label="Category"
+                    rules={[{ required: true }]}
+                  >
                     <Select
                       className="mr-2"
                       placeholder="select category"
@@ -322,24 +421,30 @@ export default function Index({}: Props): ReactElement {
                         </Option>
                       ))}
                     </Select>
+                  </Form.Item>
+                  <Form.Item
+                    name="subCategoryUrl"
+                    label="Category"
+                    rules={[{ required: true }]}
+                  >
                     <Select
                       placeholder="select sub category"
                       value={selectedSubCategory}
                       allowClear
                       onChange={(e) => {
                         console.log(e);
-                        form.setFieldsValue({ subCategoryId: e });
                         setSelectedSubCategory(e);
+                        // form.setFieldsValue({ subCategoryUrl: e });
                       }}
                     >
                       {selectBoxSubCategory?.map((obj: any, index: number) => (
-                        <Option value={obj.id} key={`category-${index}`}>
+                        <Option value={obj.url} key={`category-${index}`}>
                           {obj.name}
                         </Option>
                       ))}
                     </Select>
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </div>
               <div className="col-12">
                 <Form.Item
@@ -498,10 +603,7 @@ export default function Index({}: Props): ReactElement {
                   label="Color"
                   rules={[{ required: true }]}
                 >
-                  <Button
-                    type="primary"
-                    onClick={() => setOpenPickColor(!openPickColor)}
-                  >
+                  <Button onClick={() => setOpenPickColor(!openPickColor)}>
                     Pick color
                   </Button>
                   {openPickColor && (
@@ -517,6 +619,7 @@ export default function Index({}: Props): ReactElement {
                             width: "20px",
                             height: "20px",
                             background: color,
+                            border: "2px solid #000",
                           }}
                         />
                         <DeleteOutlined

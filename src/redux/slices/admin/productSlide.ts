@@ -4,11 +4,16 @@ import { API_ENDPOINT } from "src/constant/api";
 import axiosService from "src/utilities/axiosService";
 import { message } from "antd";
 
-export const getListProduct = createAsyncThunk("getListProduct", async () => {
-  const res = await axios.get(`${API_ENDPOINT}/products`);
-  console.log(res.data.products);
-  return res.data.products;
-});
+export const getListProduct = createAsyncThunk(
+  "getListProduct",
+  async (filter: any) => {
+    const res = await axios.get(`${API_ENDPOINT}/products`, {
+      params: filter,
+    });
+    console.log(res.data.products);
+    return res.data.products;
+  }
+);
 
 export const getListProductBySub = createAsyncThunk(
   "getListProductBySub",
