@@ -1,4 +1,4 @@
-import { getListOrders, updateOrder } from "@redux/slices/admin/orderSlide";
+import { getListOrders, updateOrder } from "@redux/slices/admin/orderSlice";
 import { Input, Modal, Select, Space, Table } from "antd";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +14,7 @@ export default function IndexOrder({ orderStatus }: Props): ReactElement {
   const listOrders = useSelector((state) => state.order.listOrders) as any;
   const [openOrderModal, setOpenOrderModal] = useState<boolean>();
   const [orderInfo, setOrderInfo] = useState<any>();
-  const [orderStatusSelect, setOrderStatusSelect] = useState<any>();
+  const [orderStatusSelect, setOrderStatusSelect] = useState<any>(false);
 
   useEffect(() => {
     dispatch(getListOrders(orderStatus));

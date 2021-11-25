@@ -70,13 +70,15 @@ export default function MasterLayout({ children }: Props): ReactElement {
                   </Link>
                 </Panel>
                 <Panel header="Category" key="2">
-                  <div
-                    className={`menu-item ${
-                      router.pathname === "/category" && "active"
-                    }`}
-                  >
-                    Category
-                  </div>
+                  <Link href="/category">
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/category" && "active"
+                      }`}
+                    >
+                      Category
+                    </div>
+                  </Link>
                 </Panel>
                 <Panel header="Collection" key="3">
                   123

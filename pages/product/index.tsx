@@ -4,7 +4,7 @@ import {
   getListProduct,
   getListProductBySub,
   updateProduct,
-} from "@redux/slices/admin/productSlide";
+} from "@redux/slices/admin/productSlice";
 import { Table, Button, Modal, Select, Form, Input, Space, Upload } from "antd";
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
