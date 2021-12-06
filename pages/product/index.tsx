@@ -34,7 +34,7 @@ export default function Index({}: Props): ReactElement {
   const [form] = Form.useForm();
   const { Option } = Select;
   const [productStocksStatic, setProductStocksStatic] = useState<any>();
-  const [productColors, setProductColors] = useState<any[]>([]);
+  const [productColors, setProductColors] = useState<any[]>([]) as any;
 
   const [isCreateNew, setIsCreateNew] = useState<boolean>(true);
   // isCreateNew === false => means update.
@@ -75,7 +75,10 @@ export default function Index({}: Props): ReactElement {
 
   const handleColorPicker = (color: any) => {
     console.log(color);
-    setProductColors((prev) => [...prev, color.hex]);
+    setProductColors((prev: any) => [
+      ...prev,
+      { color_code: color.hex, color_name: "" },
+    ]);
     setOpenPickColor(false);
   };
 
@@ -152,7 +155,7 @@ export default function Index({}: Props): ReactElement {
       dataIndex: "color",
       key: "color",
       render: (colors: any) =>
-        colors?.map((obj: any, index: number) => (
+        colors?.color_code?.map((obj: any, index: number) => (
           <div className="d-flex align-items-center">
             <div
               className="mx-2"
@@ -296,20 +299,6 @@ export default function Index({}: Props): ReactElement {
       );
       form.resetFields();
     }
-    //----
-
-    // const data = {
-    //   subCategoryId: values.subCategoryId,
-    //   name: values.name,
-    //   price: values.price,
-    //   arrival: values.arrival,
-    //   status: values.status,
-    //   productStocks: JSON.stringify(values.productStocks),
-    //   files: targetImg,
-    //   color: values.color,
-    //   description: values.description,
-    // };
-    // console.log(data);
   };
 
   const normFile = (e: any) => {
@@ -609,16 +598,34 @@ export default function Index({}: Props): ReactElement {
                   {openPickColor && (
                     <SwatchesPicker onChange={handleColorPicker} />
                   )}
-                  {productColors?.map((color: string, index: number) => (
-                    <div className="my-2 w-100 d-flex justify-content-between align-content-center">
-                      <div>{color}</div>
+                  {productColors?.map((color: any, index: number) => (
+                    <div className="my-2 w-100 d-flex justify-content-start align-items-center">
+                      <div>{color.color_code}</div>
+                      <Input
+                        className="w-25 mx-2"
+                        placeholder="color name"
+                        defaultValue={color.color_name}
+                        onChange={async (e) => {
+                          let cloneColors = (await [...productColors]) as any;
+                          let updateIndex = await cloneColors.findIndex(
+                            (e: any) => e.color_code === color.color_code
+                          );
+                          cloneColors[updateIndex] = {
+                            ...cloneColors[updateIndex],
+                            color_name: e.target.value,
+                          };
+                          setProductColors(cloneColors);
+
+                          // cloneColors[updateIndex].color_name = e.target.value;
+                        }}
+                      />
                       <div className="d-flex align-items-center">
                         <div
                           className="mx-2"
                           style={{
                             width: "20px",
                             height: "20px",
-                            background: color,
+                            background: color.color_code,
                             border: "2px solid #000",
                           }}
                         />
@@ -627,7 +634,7 @@ export default function Index({}: Props): ReactElement {
                           onClick={() => {
                             let cloneColors = [...productColors];
                             let deletedIndex = cloneColors.findIndex(
-                              (e: any) => e === color
+                              (e: any) => e.color_code === color.color_code
                             );
                             cloneColors.splice(deletedIndex, 1);
                             console.log(cloneColors);
