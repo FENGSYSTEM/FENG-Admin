@@ -152,6 +152,11 @@ export default function IndexOrder({ orderStatus }: Props): ReactElement {
               disabled
             />
             <Input
+              addonBefore="Customer email:"
+              value={orderInfo?.email}
+              disabled
+            />
+            <Input
               addonBefore="Customer phone:"
               value={orderInfo?.phone}
               disabled
@@ -182,6 +187,7 @@ export default function IndexOrder({ orderStatus }: Props): ReactElement {
                 />
               </Space>
             </div>
+            <Input addonBefore="Note:" value={orderInfo?.note} disabled />
             <div className="w-100 d-flex justify-content-between align-items-center">
               <div>Order status:</div>
               <Select

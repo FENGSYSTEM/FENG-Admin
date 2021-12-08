@@ -80,8 +80,25 @@ export default function MasterLayout({ children }: Props): ReactElement {
                     </div>
                   </Link>
                 </Panel>
-                <Panel header="Collection" key="3">
-                  123
+                <Panel header="Configurations" key="3">
+                  <Link href="/config/feng-content">
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/config/feng-content" && "active"
+                      }`}
+                    >
+                      Feng website content
+                    </div>
+                  </Link>
+                  <Link href="/config/event">
+                    <div
+                      className={`menu-item ${
+                        router.pathname === "/config/event" && "active"
+                      }`}
+                    >
+                      Event
+                    </div>
+                  </Link>
                 </Panel>
               </Collapse>
             </div>,
