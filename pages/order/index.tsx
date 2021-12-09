@@ -1,5 +1,5 @@
 import { getListOrders, updateOrder } from "@redux/slices/admin/orderSlice";
-import { Input, Modal, Select, Space, Table } from "antd";
+import { Button, Input, Modal, Select, Space, Table } from "antd";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
@@ -16,8 +16,10 @@ export default function IndexOrder({ orderStatus }: Props): ReactElement {
   const [orderInfo, setOrderInfo] = useState<any>();
   const [orderStatusSelect, setOrderStatusSelect] = useState<any>(false);
 
+  const [searchValue, setSearchValue] = useState<string>("");
+
   useEffect(() => {
-    dispatch(getListOrders(orderStatus));
+    dispatch(getListOrders({ orderStatus, search: searchValue }));
   }, []);
 
   const columns = [
@@ -132,8 +134,17 @@ export default function IndexOrder({ orderStatus }: Props): ReactElement {
     await dispatch(getListOrders(orderStatus));
   };
 
+  useEffect(() => {
+    dispatch(getListOrders({ orderStatus, search: searchValue }));
+  }, [searchValue]);
   return (
     <div>
+      <Input
+        className="mb-3"
+        value={searchValue}
+        placeholder="Search customer name, phone number..."
+        onChange={(e) => setSearchValue(e.target.value)}
+      />
       <Table columns={columns} dataSource={listOrders} />
       <Modal
         title={`View order - ID: ${orderInfo?.id}`}
@@ -202,6 +213,7 @@ export default function IndexOrder({ orderStatus }: Props): ReactElement {
                 <Option value="PENDING">PENDING</Option>
                 <Option value="PROCESSING">PROCESSING</Option>
                 <Option value="SUCCESSFUL">SUCCESSFUL</Option>
+                <Option value="REJECT">REJECT</Option>
               </Select>
             </div>
           </Space>

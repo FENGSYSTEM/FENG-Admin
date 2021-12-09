@@ -217,6 +217,9 @@ export default function Index({}: Props): ReactElement {
                 subCategoryUrl: record.subCategory.url,
                 name: record.name,
                 price: record.price,
+                priceUS: record.priceUS,
+                priceOld: record.priceOld,
+                priceUSOld: record.priceUSOld,
                 arrival: record.arrival,
                 status: record.status,
                 productStocks: record.productStocks,
@@ -242,6 +245,9 @@ export default function Index({}: Props): ReactElement {
       sendData.append("subCategoryUrl", values.subCategoryUrl);
       sendData.append("name", values.name);
       sendData.append("price", values.price);
+      sendData.append("priceOld", values.priceOld);
+      sendData.append("priceUS", values.priceUS);
+      sendData.append("priceUSOld", values.priceUSOld);
       sendData.append("arrival", values.arrival);
       sendData.append("status", values.status);
       sendData.append("productStocks", JSON.stringify(values.productStocks));
@@ -273,6 +279,9 @@ export default function Index({}: Props): ReactElement {
       sendData.append("subCategoryUrl", values.subCategoryUrl);
       sendData.append("name", values.name);
       sendData.append("price", values.price);
+      sendData.append("priceOld", values.priceOld);
+      sendData.append("priceUS", values.priceUS);
+      sendData.append("priceUSOld", values.priceUSOld);
       sendData.append("arrival", values.arrival);
       sendData.append("status", values.status);
       sendData.append("productStocks", JSON.stringify(values.productStocks));
@@ -380,7 +389,7 @@ export default function Index({}: Props): ReactElement {
         onOk={() => form.submit()}
         onCancel={() => setOpenCreateModal(false)}
         centered
-        width={650}
+        width={750}
       >
         <Form form={form} name="control-hooks" onFinish={onFinish}>
           <div className="col-12">
@@ -445,13 +454,44 @@ export default function Index({}: Props): ReactElement {
                 </Form.Item>
               </div>
               <div className="col-12">
-                <Form.Item
-                  name="price"
-                  label="Price"
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="Price" type="number" />
-                </Form.Item>
+                <div className="row">
+                  <div className="col-6">
+                    <Form.Item
+                      name="price"
+                      label="Price in VND"
+                      rules={[{ required: true }]}
+                    >
+                      <Input placeholder="Price in VND" type="number" />
+                    </Form.Item>
+                  </div>
+                  <div className="col-6">
+                    <Form.Item
+                      name="priceUS"
+                      label="Price in US"
+                      rules={[{ required: true }]}
+                    >
+                      <Input placeholder="Price in US" type="number" />
+                    </Form.Item>
+                  </div>
+                  <div className="col-6">
+                    <Form.Item
+                      name="priceOld"
+                      label="Price in VND Old"
+                      rules={[{ required: true }]}
+                    >
+                      <Input placeholder="Price in VND Old" type="number" />
+                    </Form.Item>
+                  </div>
+                  <div className="col-6">
+                    <Form.Item
+                      name="priceUSOld"
+                      label="Price in US Old"
+                      rules={[{ required: true }]}
+                    >
+                      <Input placeholder="Price in US Old" type="number" />
+                    </Form.Item>
+                  </div>
+                </div>
               </div>
               <div className="col-12">
                 <Form.Item
@@ -599,12 +639,13 @@ export default function Index({}: Props): ReactElement {
                     <SwatchesPicker onChange={handleColorPicker} />
                   )}
                   {productColors?.map((color: any, index: number) => (
-                    <div className="my-2 w-100 d-flex justify-content-start align-items-center">
+                    <div className="my-2 w-100 d-flex justify-content-between align-items-center">
                       <div>{color.color_code}</div>
+                      <div className="mx-2">{color.color_name}</div>
                       <Input
                         className="w-25 mx-2"
-                        placeholder="color name"
-                        defaultValue={color.color_name}
+                        placeholder="update color name"
+                        // defaultValue={color.color_name}
                         onChange={async (e) => {
                           let cloneColors = (await [...productColors]) as any;
                           let updateIndex = await cloneColors.findIndex(
@@ -615,8 +656,6 @@ export default function Index({}: Props): ReactElement {
                             color_name: e.target.value,
                           };
                           setProductColors(cloneColors);
-
-                          // cloneColors[updateIndex].color_name = e.target.value;
                         }}
                       />
                       <div className="d-flex align-items-center">

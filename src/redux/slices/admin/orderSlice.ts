@@ -6,10 +6,11 @@ import { message } from "antd";
 
 export const getListOrders = createAsyncThunk(
   "getListOrder",
-  async (orderStatus: any) => {
+  async ({ orderStatus, search }: { orderStatus: string; search: string }) => {
     const res = await axios.get(`${API_ENDPOINT}/orders`, {
       params: {
         orderStatus,
+        search,
       },
     });
     console.log(res.data);
