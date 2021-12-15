@@ -183,6 +183,11 @@ export default function IndexOrder({ orderStatus }: Props): ReactElement {
               disabled
             />
             <Input
+              addonBefore="Payment type:"
+              value={orderInfo?.paymentType}
+              disabled
+            />
+            <Input
               addonBefore="Created at:"
               value={moment(orderInfo?.createdAt)
                 .format("HH:SS - YYYY/MM/DD ")

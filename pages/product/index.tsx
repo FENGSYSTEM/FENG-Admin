@@ -477,7 +477,7 @@ export default function Index({}: Props): ReactElement {
                     <Form.Item
                       name="priceOld"
                       label="Price in VND Old"
-                      rules={[{ required: true }]}
+                      rules={[{ required: false }]}
                     >
                       <Input placeholder="Price in VND Old" type="number" />
                     </Form.Item>
@@ -486,7 +486,7 @@ export default function Index({}: Props): ReactElement {
                     <Form.Item
                       name="priceUSOld"
                       label="Price in US Old"
-                      rules={[{ required: true }]}
+                      rules={[{ required: false }]}
                     >
                       <Input placeholder="Price in US Old" type="number" />
                     </Form.Item>
